@@ -31,13 +31,28 @@ class UserController extends Controller
     /**
      * @Rest\Get("/api/user/{id}")
      */
-    public function showAction(Request $request, $id)
+    public function releteAction(Request $request, $id)
     {
         $user = $this->getDoctrine()->getRepository('App:User')->find($id);
         if (!$content = $request->getContent()) {
             throw new JsonHttpException(400, 'No user');
         }
         return $this->json($user);
+    }
+
+    /**
+     * @Rest\Delete("/api/user/{id}/delete")
+     */
+    public function showAction(Request $request, $id)
+    {
+        $user = $this->getDoctrine()->getRepository('App:User')->find($id);
+        if (!$content = $request->getContent()) {
+            throw new JsonHttpException(400, 'No user');
+        }
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($user);
+        $em->flush();
+        return ($this->json('deleted'));
     }
 
     /**

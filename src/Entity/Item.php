@@ -90,7 +90,7 @@ class Item
             'id' => $this->getId(),
             'name' => $this->getName(),
             'checked' => $this->getChecked(),
-            'listTodo' => $this->getListTodo()->getId(),
+            'listTodo' => $this->getListTodo()->getName(),
             'user' => $this->getListTodo()->getUser(),
             'attachment' => $this->getAttachment()
         ];
