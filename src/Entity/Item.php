@@ -91,7 +91,7 @@ class Item implements \JsonSerializable
             'name' => $this->getName(),
             'checked' => $this->getChecked(),
             'listTodo' => $this->getListTodo()->getName(),
-            'user' => $this->getListTodo()->getUser()->getUsername(),
+            'user' => $this->getListTodo()->getUser(),
             'attachment' => $this->getAttachment()
         ];
     }
