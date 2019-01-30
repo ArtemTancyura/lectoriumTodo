@@ -21,7 +21,7 @@ class ListTodoController extends Controller
     public function index(Request $request)
     {
         $listsTodo = $this->getDoctrine()->getRepository('App:ListTodo')->findAll();
-        if (!$content = $request->getContent()) {
+        if (!$listsTodo) {
             throw new JsonHttpException(400, 'No lists');
         }
         return  $this->json($listsTodo);
@@ -33,7 +33,7 @@ class ListTodoController extends Controller
     public function showAction(Request $request, $id)
     {
         $listTodo = $this->getDoctrine()->getRepository('App:ListTodo')->find($id);
-        if (!$content = $request->getContent()) {
+        if (!$listTodo) {
             throw new JsonHttpException(400, 'No list');
         }
         return $this->json($listTodo);

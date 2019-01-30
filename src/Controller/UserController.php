@@ -22,7 +22,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $users = $this->getDoctrine()->getRepository('App:User')->findAll();
-        if (!$content = $request->getContent()) {
+        if (!$users) {
             throw new JsonHttpException(400, 'No users');
         }
         return  $this->json($users);
@@ -34,7 +34,7 @@ class UserController extends Controller
     public function releteAction(Request $request, $id)
     {
         $user = $this->getDoctrine()->getRepository('App:User')->find($id);
-        if (!$content = $request->getContent()) {
+        if (!$user) {
             throw new JsonHttpException(400, 'No user');
         }
         return $this->json($user);
@@ -46,7 +46,7 @@ class UserController extends Controller
     public function showAction(Request $request, $id)
     {
         $user = $this->getDoctrine()->getRepository('App:User')->find($id);
-        if (!$content = $request->getContent()) {
+        if (!$user) {
             throw new JsonHttpException(400, 'No user');
         }
         $em = $this->getDoctrine()->getManager();
@@ -56,30 +56,26 @@ class UserController extends Controller
     }
 
     /**
-     * @var SerializerInterface
-     */
-    private $serializer;
-
-    /**
      * @var UserPasswordEncoderInterface
      */
     private $passwordEncoder;
-    public function __construct(SerializerInterface $serializer, UserPasswordEncoderInterface $passwordEncoder)
+
+
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder)
     {
-        $this->serializer = $serializer;
         $this->passwordEncoder = $passwordEncoder;
     }
 
     /**
      * @Rest\Post("/api/registration")
      */
-    public function registrationAction(Request $request, ValidatorInterface $validator, UserPasswordEncoderInterface $passwordEncoder)
+    public function registrationAction(Request $request, SerializerInterface $serializer, ValidatorInterface $validator, UserPasswordEncoderInterface $passwordEncoder)
     {
         /** @var User $user */
-        $user = $this->serializer->deserialize($request->getContent(), User::class, JsonEncoder::FORMAT);
+        $user = $serializer->deserialize($request->getContent(), User::class, JsonEncoder::FORMAT);
         $errors = $validator->validate($user);
         if (count($errors)) {
-            throw new JsonHttpException(400, 'Bad Request');
+            throw new JsonHttpException(400, $errors);
         }
         $password = $passwordEncoder->encodePassword($user, $user->getPassword());
         $user->setPassword($password);
@@ -87,7 +83,7 @@ class UserController extends Controller
         $this->getDoctrine()->getManager()->persist($user);
         $this->getDoctrine()->getManager()->flush();
 
-        return $this->json($user->getApiToken());
+        return $this->json($user);
     }
 
     /**

@@ -19,7 +19,7 @@ class ItemController extends AbstractController
     public function index(Request $request)
     {
         $items = $this->getDoctrine()->getRepository('App:Item')->findAll();
-        if (!$content = $request->getContent()) {
+        if (!$items) {
             throw new JsonHttpException(400, 'No items');
         }
         return  $this->json($items);
@@ -31,7 +31,7 @@ class ItemController extends AbstractController
     public function showAction(Request $request, $id)
     {
         $item = $this->getDoctrine()->getRepository('App:Item')->find($id);
-        if (!$content = $request->getContent()) {
+        if (!$item) {
             throw new JsonHttpException(400, 'No item');
         }
         return $this->json($item);
@@ -51,7 +51,7 @@ class ItemController extends AbstractController
             throw new JsonHttpException(400, 'Bad Request');
         }
         $repository = $this->getDoctrine()->getRepository(ListTodo::class);
-        $list = $repository->findOneBy(['id'=> $id], []);
+        $list = $repository->findOneBy(['id'=> $id]);
 
         $list->addItem($item);
         $em = $this->getDoctrine()->getManager();
@@ -66,9 +66,9 @@ class ItemController extends AbstractController
     public function deleteAction(ListTodo $listTodo, Item $item)
     {
         $user = $this->getUser();
-        $userLists = $user->getListTodo()->getName();
+        $userLists = $user->getListTodo();
         if(isset($listTodo, $userLists)){
-            $items = $listTodo->getItem();
+            $items = $listTodo->getItems();
             if(isset($item, $items)){
                 $em = $this->getDoctrine()->getManager();
                 $em->remove($item);

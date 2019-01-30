@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ItemRepository")
  */
-class Item
+class Item implements \JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -91,7 +91,7 @@ class Item
             'name' => $this->getName(),
             'checked' => $this->getChecked(),
             'listTodo' => $this->getListTodo()->getName(),
-            'user' => $this->getListTodo()->getUser(),
+            'user' => $this->getListTodo()->getUser()->getUsername(),
             'attachment' => $this->getAttachment()
         ];
     }

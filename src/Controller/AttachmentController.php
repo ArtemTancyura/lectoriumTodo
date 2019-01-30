@@ -19,8 +19,8 @@ class AttachmentController extends AbstractController
      */
     public function index(Request $request)
     {
-        $items = $this->getDoctrine()->getRepository('App:Attachment')->findAll();
-        if (!$content = $request->getContent()) {
+        $attachments = $this->getDoctrine()->getRepository('App:Attachment')->findAll();
+        if (!$attachments) {
             throw new JsonHttpException(400, 'No attachments');
         }
         return  $this->json($items);
@@ -31,38 +31,41 @@ class AttachmentController extends AbstractController
      */
     public function showAction(Request $request, $id)
     {
-        $item = $this->getDoctrine()->getRepository('App:Attachment')->find($id);
-        if (!$content = $request->getContent()) {
+        $attachment = $this->getDoctrine()->getRepository('App:Attachment')->find($id);
+        if (!$attachment) {
             throw new JsonHttpException(400, 'No attachment');
         }
         return $this->json($item);
     }
 
     /**
-     * @Rest\Post("/api/list/{list}/item/{item}/attachment")
+     * @Rest\Post("/api/list/{id2}/item/{id}/attachment")
      */
-    public function createAction(Request $request, SerializerInterface $serializer, ValidatorInterface $validator, ListTodo $list, Item $item)
+    public function createAction(Request $request, SerializerInterface $serializer,ValidatorInterface $validator, $id2, $id)
     {
         $user = $this->getUser();
-        $userLists = $user->getListTodo()->getName();
-        if (isset($list, $userLists)) {
-            $items = $list->getItem();
-            if (isset($item, $items)) {
-                $attachment = $serializer->deserialize($request->getContent(), Attachment::class, 'json');
+        $userLists = $user->getListTodo();
+
+        $repository = $this->getDoctrine()->getRepository(ListTodo::class);
+        $listTodo = $repository->findOneBy(['id'=> $id2]);
+
+        $repository = $this->getDoctrine()->getRepository(Item::class);
+        $item = $repository->findOneBy(['id'=> $id]);
+
+        if(isset($listTodo, $userLists)){
+            $items = $listTodo->getItems();
+            if(isset($item, $items)){
+                $attachment = $serializer->deserialize($request->getContent(),Attachment::class,'json');
                 $errors = $validator->validate($attachment);
                 if (count($errors)) {
                     throw new JsonHttpException(400, 'Bad Request');
                 }
-                $repository = $this->getDoctrine()->getRepository(Item::class);
-                $item = $repository->findOneBy(['name'=> $item], []);
-
                 $item->setAttachment($attachment);
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($item);
                 $em->flush();
                 return ($this->json($item));
-            }
-        }
+            }}
         throw new JsonHttpException(400, 'Bad Request');
     }
 }

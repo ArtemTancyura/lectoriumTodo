@@ -26,7 +26,7 @@ class ListTodo implements \JsonSerializable
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Item", mappedBy="listTodo", cascade={"persist", "remove"})
      */
-    private $item;
+    private $items;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="listsTodo")
@@ -36,7 +36,7 @@ class ListTodo implements \JsonSerializable
 
     public function __construct()
     {
-        $this->item = new ArrayCollection();
+        $this->items = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -59,23 +59,22 @@ class ListTodo implements \JsonSerializable
     /**
      * @return Collection|Item[]
      */
-    public function getItem(): Collection
+    public function getItems(): Collection
     {
-        return $this->item;
+        return $this->items;
     }
     public function addItem(Item $item): self
     {
-        if (!$this->item->contains($item)) {
-            $this->item[] = $item;
+        if (!$this->items->contains($item)) {
+            $this->items[] = $item;
             $item->setListTodo($this);
         }
         return $this;
     }
-
     public function removeItem(Item $item): self
     {
-        if ($this->item->contains($item)) {
-            $this->item->removeElement($item);
+        if ($this->items->contains($item)) {
+            $this->items->removeElement($item);
             // set the owning side to null (unless already changed)
             if ($item->getListTodo() === $this) {
                 $item->setListTodo(null);
@@ -83,6 +82,7 @@ class ListTodo implements \JsonSerializable
         }
         return $this;
     }
+
 
     public function getUser(): ?User
     {
@@ -99,7 +99,7 @@ class ListTodo implements \JsonSerializable
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
-            'item'=> $this->getItem()
+            'items'=> $this->getItems()
         ];
     }
 }
