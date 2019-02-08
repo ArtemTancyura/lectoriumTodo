@@ -1,1 +1,1 @@
- I`m sorry, but I shoul arrive and in my project don"t work some functional, but I promise refactor all of bugs
+ Trying to make a Stripe integration. When i finish i will upload it here
