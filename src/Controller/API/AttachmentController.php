@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\API;
 
 use App\Entity\Attachment;
 use App\Entity\ListTodo;
@@ -41,7 +41,7 @@ class AttachmentController extends AbstractController
     /**
      * @Rest\Post("/api/list/{id2}/item/{id}/attachment")
      */
-    public function createAction(Request $request, SerializerInterface $serializer,ValidatorInterface $validator, $id2, $id)
+    public function createAction(Request $request, SerializerInterface $serializer, ValidatorInterface $validator, $id2, $id)
     {
         $user = $this->getUser();
         $userLists = $user->getListTodo();
@@ -52,10 +52,10 @@ class AttachmentController extends AbstractController
         $repository = $this->getDoctrine()->getRepository(Item::class);
         $item = $repository->findOneBy(['id'=> $id]);
 
-        if(isset($listTodo, $userLists)){
+        if (isset($listTodo, $userLists)) {
             $items = $listTodo->getItems();
-            if(isset($item, $items)){
-                $attachment = $serializer->deserialize($request->getContent(),Attachment::class,'json');
+            if (isset($item, $items)) {
+                $attachment = $serializer->deserialize($request->getContent(), Attachment::class, 'json');
                 $errors = $validator->validate($attachment);
                 if (count($errors)) {
                     throw new JsonHttpException(400, 'Bad Request');
@@ -65,7 +65,8 @@ class AttachmentController extends AbstractController
                 $em->persist($item);
                 $em->flush();
                 return ($this->json($item));
-            }}
+            }
+        }
         throw new JsonHttpException(400, 'Bad Request');
     }
 }

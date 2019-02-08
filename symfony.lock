@@ -155,6 +155,18 @@
     "ramsey/uuid": {
         "version": "3.8.0"
     },
+    "sensio/framework-extra-bundle": {
+        "version": "5.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "5.2",
+            "ref": "fb7e19da7f013d0d422fa9bce16f5c510e27609b"
+        }
+    },
+    "stripe/stripe-php": {
+        "version": "v6.29.3"
+    },
     "symfony/cache": {
         "version": "v4.2.2"
     },

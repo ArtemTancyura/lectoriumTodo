@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\API;
 
 use App\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,6 +14,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Ramsey\Uuid\Uuid;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use App\Normalizer\UserNormalizer;
+use App\Security\TokenAuthenticator;
+
 class UserController extends Controller
 {
     /**
@@ -21,53 +25,58 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $users = $this->getDoctrine()->getRepository('App:User')->findAll();
-        if (!$users) {
-            throw new JsonHttpException(400, 'No users');
+        $apiToken = $request->headers->get(TokenAuthenticator::X_API_KEY);
+        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['apiToken' => $apiToken]);
+        if ($user->getRoles() == ["ROLE_ADMIN", "ROLE_USER"]) {
+            $users = $this->getDoctrine()->getRepository('App:User')->findAll();
+            if (!$users) {
+                throw new JsonHttpException(400, 'No users');
+            }
+            return  $this->json($users);
+        } else {
+            throw new JsonHttpException(403, 'No permissions for that operation');
         }
-        return  $this->json($users);
     }
 
     /**
      * @Rest\Get("/api/user/{id}")
      */
-    public function releteAction(Request $request, $id)
+    public function showAction(Request $request, $id)
     {
-        $user = $this->getDoctrine()->getRepository('App:User')->find($id);
-        if (!$user) {
-            throw new JsonHttpException(400, 'No user');
+        $apiToken = $request->headers->get(TokenAuthenticator::X_API_KEY);
+        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['apiToken' => $apiToken]);
+        if ($user->getRoles() == ["ROLE_ADMIN", "ROLE_USER"]) {
+            $oneUser = $this->getDoctrine()->getRepository('App:User')->find($id);
+            if (!$oneUser) {
+                throw new JsonHttpException(400, 'No user');
+            }
+            return $this->json($oneUser, 200, [], [AbstractNormalizer::GROUPS => [UserNormalizer::DETAIL]]);
+        } else {
+            throw new JsonHttpException(403, 'No permissions for that operation');
         }
-        return $this->json($user);
     }
     
     /**
      * @Rest\Delete("/api/user/{id}/delete")
      */
-    public function showAction(Request $request, $id)
+    public function deleteAction(Request $request, $id)
     {
-        $user = $this->getDoctrine()->getRepository('App:User')->find($id);
-        if (!$content = $request->getContent()) {
-            throw new JsonHttpException(400, 'No user');
+        $apiToken = $request->headers->get(TokenAuthenticator::X_API_KEY);
+        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['apiToken' => $apiToken]);
+        if ($user->getRoles() == ["ROLE_ADMIN", "ROLE_USER"]) {
+            $userDel = $this->getDoctrine()->getRepository('App:User')->find($id);
+            if (!$content = $request->getContent()) {
+                throw new JsonHttpException(400, 'No user');
+            }
+            $em = $this->getDoctrine()->getManager();
+            $em->remove($userDel);
+            $em->flush();
+            return ($this->json('deleted'));
+        } else {
+            throw new JsonHttpException(403, 'No permissions for that operation');
         }
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($user);
-        $em->flush();
-        return ($this->json('deleted'));
     }
-    /**
-     * @Rest\Delete("/api/user/{id}/delete")
-     */
-    public function showAction(Request $request, $id)
-    {
-        $user = $this->getDoctrine()->getRepository('App:User')->find($id);
-        if (!$user) {
-            throw new JsonHttpException(400, 'No user');
-        }
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($user);
-        $em->flush();
-        return ($this->json('deleted'));
-    }
+
 
     /**
      * @var UserPasswordEncoderInterface

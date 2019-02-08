@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Listener;
+
 use App\Exception\JsonHttpException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;

@@ -14,6 +14,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class TokenAuthenticator extends AbstractGuardAuthenticator
 {
+    const X_API_KEY = 'x-api-key';
     private $em;
     public function __construct(EntityManagerInterface $em)
     {

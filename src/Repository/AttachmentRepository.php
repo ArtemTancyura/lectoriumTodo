@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Repository;
+
 use App\Entity\Attachment;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
+
 /**
  * @method Attachment|null find($id, $lockMode = null, $lockVersion = null)
  * @method Attachment|null findOneBy(array $criteria, array $orderBy = null)
